@@ -1,0 +1,32 @@
+# panel_wifi.hal - generic example. Load it AFTER the main HAL file, so the
+# signals below already exist:   [HAL] HALFILE = panel_wifi.hal
+#
+# Signal names differ from one config to the next. Check yours with
+#   halcmd show sig
+# and replace the names on the left. Replace /home/USER with the real path.
+
+loadusr -Wn panel_wifi /usr/bin/python3 /home/USER/linuxcnc-wireless-display/run_panel.py --config /home/USER/linuxcnc-wireless-display/local/host.json
+
+# Adding a reader to an existing signal doesn't add a writer and doesn't
+# change its value. A pin can only be on one signal, so if a source pin is
+# already linked, add panel_wifi.* to THAT signal instead of creating a new one.
+
+# Spindle speed. If the signal is in rev/s set "rpm_input_scale": 60 in host.json.
+net spindle-vel-cmd-rpm => panel_wifi.rpm
+net spindle-enable      => panel_wifi.spindle_on
+
+# Coolant: flood and mist are OR-ed together by panel_wifi
+net coolant-flood       => panel_wifi.coolant
+# net coolant-mist      => panel_wifi.coolant_mist
+
+# Machine position (the DRO page gets work coordinates from LinuxCNC itself)
+net x-pos-fb => panel_wifi.x
+net y-pos-fb => panel_wifi.y
+net z-pos-fb => panel_wifi.z
+
+# Current feed in machine units per second (mm/s); the display shows mm/min.
+# Only create this signal if motion.current-vel isn't linked yet.
+net panel-feed motion.current-vel => panel_wifi.feed
+
+# Last line: until 'enabled' is true the display shows WAITING FOR HAL.
+setp panel_wifi.enabled true

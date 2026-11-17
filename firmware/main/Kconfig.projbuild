@@ -1,0 +1,73 @@
+menu "LinuxCNC wireless display"
+    config PANEL_WIFI_SSID
+        string "Wi-Fi SSID (2.4 GHz)"
+        default "CHANGE_ME"
+    config PANEL_WIFI_PASSWORD
+        string "Wi-Fi password"
+        default ""
+    config PANEL_MACHINE_ID
+        string "Machine ID used for discovery"
+        default "emco-f1"
+        help
+            Must match machine_id in the host JSON file. Lower case letters,
+            digits, '-' and '_', up to 32 characters.
+    config PANEL_HOST_PORT
+        int "UDP port on the LinuxCNC PC"
+        range 1024 65535
+        default 27180
+    config PANEL_SCREEN_PORT
+        int "UDP port on the display"
+        range 1024 65535
+        default 27181
+    config PANEL_UPDATE_PORT
+        int "HTTP port of the host firmware server (OTA)"
+        range 1024 65535
+        default 27190
+        help
+            Port where panel_wifi serves the signed firmware image.
+    config PANEL_RPM_MAX
+        int "RPM full scale (display only, does not limit the machine)"
+        range 100 100000
+        default 5000
+    config PANEL_RPM_WARNING
+        int "RPM where the warning arc starts"
+        range 0 100000
+        default 2500
+    config PANEL_STALE_MS
+        int "Time without samples before data is shown as stale (ms)"
+        range 200 10000
+        default 1000
+    config PANEL_LCD_PCLK_MHZ
+        int "RGB panel pixel clock (MHz)"
+        range 4 18
+        default 8
+    config PANEL_BATTERY
+        bool "Show LiPo battery indicator"
+        default y
+        help
+            Reads the cell voltage through the BAT_ADC divider on the board.
+            The charger status pin is not wired to the ESP32, so charging is
+            guessed from the voltage trend.
+    config PANEL_BATTERY_GPIO
+        int "BAT_ADC GPIO (must be on ADC1)"
+        depends on PANEL_BATTERY
+        range 1 10
+        default 4
+    config PANEL_BATTERY_DIVIDER_X1000
+        int "Divider ratio x1000 (200k/100k = 3000)"
+        depends on PANEL_BATTERY
+        range 1000 10000
+        default 3000
+        help
+            Calibrate against a multimeter on the cell:
+            new ratio = current ratio x measured voltage / logged voltage.
+    config EXAMPLE_DOUBLE_FB
+        bool
+        default y
+    config EXAMPLE_USE_BOUNCE_BUFFER
+        bool
+        default n
+    config EXAMPLE_AVOID_TEAR_EFFECT_WITH_SEM
+        bool
+        default n
+endmenu

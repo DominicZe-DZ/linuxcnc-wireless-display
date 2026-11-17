@@ -1,0 +1,10 @@
+{
+  "interface": "wlp2s0",
+  "machine_id": "emco-f1",
+  "screen_id": "001122334455",
+  "host_port": 27180,
+  "screen_port": 27181,
+  "rate_hz": 25,
+  "mesa_network": "10.10.10.0/24",
+  "rpm_input_scale": 60
+}

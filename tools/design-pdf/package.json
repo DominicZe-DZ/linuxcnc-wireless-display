@@ -1,0 +1,14 @@
+{
+  "name": "design-pdf",
+  "private": true,
+  "description": "Builds docs/design as a single PDF",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "marked": "^12.0.0",
+    "mermaid": "^10.9.0",
+    "puppeteer-core": "^22.0.0"
+  }
+}

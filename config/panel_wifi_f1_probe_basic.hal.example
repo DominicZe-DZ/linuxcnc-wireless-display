@@ -1,0 +1,23 @@
+# panel_wifi.hal as used on my EMCO F1-CNC (LinuxCNC + Probe Basic, Mesa 7i76E,
+# step/dir servo spindle). Load it after the main HAL file:
+#   [HAL] HALFILE = panel_wifi.hal
+# Replace /home/USER with the real path.
+
+loadusr -Wn panel_wifi /usr/bin/python3 /home/USER/linuxcnc-wireless-display/run_panel.py --config /home/USER/linuxcnc-wireless-display/local/host.json
+
+# Stepgen velocity of the spindle, in rev/s. It follows the ramp configured in
+# LinuxCNC, so the needle moves like the real spindle. host.json: rpm_input_scale = 60
+net spindle-vel-fb-rps  => panel_wifi.rpm
+net pdnt.spindle.is-on  => panel_wifi.spindle_on
+
+net coolant-flood       => panel_wifi.coolant
+# Mist: add the reader to the signal that already carries iocontrol.0.coolant-mist
+# net YOUR-MIST-SIGNAL  => panel_wifi.coolant_mist
+
+net x-pos-fb => panel_wifi.x
+net y-pos-fb => panel_wifi.y
+net z-pos-fb => panel_wifi.z
+
+net panel-feed-mmps motion.current-vel => panel_wifi.feed
+
+setp panel_wifi.enabled true

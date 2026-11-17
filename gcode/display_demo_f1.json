@@ -1,0 +1,37 @@
+{
+  "coordinate_system": "G54",
+  "units": "mm",
+  "feed_mm_min": 500.0,
+  "cycles": 4,
+  "envelope": {
+    "x": [
+      -35.0,
+      35.0
+    ],
+    "y": [
+      -30.0,
+      30.0
+    ],
+    "z": [
+      -35.0,
+      35.0
+    ]
+  },
+  "spindle_rpm": [
+    1000,
+    2500,
+    5000,
+    0
+  ],
+  "coolant": [
+    "off",
+    "flood",
+    "mist",
+    "flood+mist",
+    "off"
+  ],
+  "coordinated_segments": 288,
+  "curve_length_mm": 1436.026,
+  "minimum_curve_and_stop_seconds": 192.3,
+  "executed": false
+}

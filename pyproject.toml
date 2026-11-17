@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linuxcnc-wireless-display"
+version = "1.0.0"
+description = "Sends LinuxCNC HAL data over Wi-Fi to a round ESP32-S3 display"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Raúl Milla (DominicZe)"}]
+dependencies = []
+
+[project.urls]
+Homepage = "https://dominicze.com"
+
+[project.scripts]
+panel-wifi = "panel_wifi.app:main"
+
+[tool.setuptools.packages.find]
+where = ["host"]

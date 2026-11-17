@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 121.7 43.5">
+  <title>F1-CNC lettering</title>
+  <desc>F1-CNC lettering drawn to match the EMCO head marking: straight strokes, same weight. Not an official EMCO font or logo.</desc>
+  <g fill="currentColor" fill-rule="evenodd">
+    <path d="M0 0H18.5V7.2H7.8V18H16.5V25.2H7.8V43.5H0Z"/>
+    <path d="M22 5.5L28 0H36V43.5H28V8.5H22Z"/>
+    <path d="M40 18H51V25.2H40Z"/>
+    <path d="M55.05 0H73.75V13.9712H65.85V7.2159H62.8V36.0282H65.85V29.8359H73.75V43.5H55.05Z"/>
+    <path d="M77.3 0H85.1L90.5 24V0H98.3V43.5H90.5L85.1 19.5V43.5H77.3Z"/>
+    <path transform="translate(47.95 0)" d="M55.05 0H73.75V13.9712H65.85V7.2159H62.8V36.0282H65.85V29.8359H73.75V43.5H55.05Z"/>
+  </g>
+</svg>

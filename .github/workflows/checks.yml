@@ -1,0 +1,99 @@
+name: checks
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/images/**'
+  pull_request:
+  workflow_dispatch:
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e .
+      - run: python -m unittest discover -s tests -p 'test_*.py' -v
+  firmware:
+    runs-on: ubuntu-latest
+    container: espressif/idf:v5.3.2
+    # No firmware build unless the host tests pass.
+    needs: host
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ID
+        shell: bash
+        run: python tools/generate_version.py
+      - name: Fetch and verify the Waveshare drivers
+        shell: bash
+        run: python tools/prepare_firmware.py
+      - name: Test the telemetry parser
+        shell: bash
+        run: |
+          gcc -std=c11 -Wall -Wextra -Ifirmware/main -I"$IDF_PATH/components/json/cJSON" tests/test_telemetry.c firmware/main/telemetry.c "$IDF_PATH/components/json/cJSON/cJSON.c" -lm -o /tmp/test_telemetry
+          /tmp/test_telemetry
+      - name: Test C signatures (SDK mbedTLS) against Python vectors
+        shell: bash
+        run: |
+          MBEDTLS="$IDF_PATH/components/mbedtls/mbedtls"
+          gcc -std=c11 -DMBEDTLS_CONFIG_FILE='"panel_crypto_config.h"' -Itests/fixtures/crypto -Ifirmware/main -I"$MBEDTLS/include" -I"$MBEDTLS/library" -I"$IDF_PATH/components/json/cJSON" tests/test_control.c firmware/main/control.c "$IDF_PATH/components/json/cJSON/cJSON.c" "$MBEDTLS"/library/*.c -lm -o /tmp/test_control
+          /tmp/test_control
+      - name: Test the battery estimator
+        shell: bash
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -Ifirmware/main tests/test_battery.c firmware/main/battery_model.c -o /tmp/test_battery
+          /tmp/test_battery
+          gcc -std=c11 -Wall -Wextra -Werror -Itests/fixtures/battery-disabled -Ifirmware/main tests/test_battery_disabled.c firmware/main/battery.c firmware/main/battery_model.c -o /tmp/test_battery_disabled
+          /tmp/test_battery_disabled
+      - name: Test the OTA manifest parser
+        shell: bash
+        run: |
+          MBEDTLS="$IDF_PATH/components/mbedtls/mbedtls"
+          gcc -std=c11 -Wall -Wextra -Ifirmware/main -I"$IDF_PATH/components/json/cJSON" tests/test_update_manifest.c firmware/main/update_manifest.c "$IDF_PATH/components/json/cJSON/cJSON.c" -I"$MBEDTLS/include" "$MBEDTLS"/library/*.c -lm -o /tmp/test_update
+          /tmp/test_update
+      - name: Render the pages with native LVGL and check redraws
+        shell: bash
+        run: python tools/render_dashboard_native.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-native-preview
+          path: .cache/native-preview/*.ppm
+          if-no-files-found: error
+      - name: Build for ESP32-S3
+        shell: bash
+        working-directory: firmware
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py set-target esp32s3
+          idf.py build
+      - name: Check the build ID inside the image
+        shell: bash
+        working-directory: firmware
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          data = Path('build/linuxcnc_wireless_display.bin').read_bytes()
+          sha = os.environ['GITHUB_SHA'][:7]
+          # A "nobuildid" build ID makes the display try to update to itself
+          # on every boot, so such an image must never be published.
+          assert b'nobuildid' not in data, 'placeholder build ID in the image'
+          assert sha.encode() in data, 'commit build ID missing from the image'
+          print('build ID in the image:', sha)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware-no-credentials
+          if-no-files-found: error
+          path: |
+            firmware/build/*.bin
+            firmware/build/bootloader/bootloader.bin
+            firmware/build/partition_table/partition-table.bin
+            firmware/build/flasher_args.json

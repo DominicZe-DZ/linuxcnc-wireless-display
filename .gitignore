@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.venv/
+local/
+.cache/
+firmware/build/
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/sdkconfig.local
+firmware/dependencies.lock
+firmware/components/
+firmware/main/vendor/
+*.log
+*.egg-info/
+tools/design-pdf/node_modules/
+tools/design-pdf/package-lock.json
+/*.pdf
